@@ -1,10 +1,14 @@
-# Repairing? (True|False) Parameters in topo_repair.dat
+# Repairing? (True|False) 
 False
-# Filtering? (True|False) Parameters in topo_filter.dat
-False
-# Cropping? (True|False) Parameters in topo_crop.dat
-False
+# Filtering: k1=1/lambda_max, k2=1/lambda (if k1=0: no filter)
+0 0.005
+# Cropping: easting1, easting2
+365944.029000 366674.029000 
+# Cropping: northing1, northing2
+7649805.227000 7650375.227000
+# Interpolating: dx, dy 
+2 2
 # Input DEM file (.grd)
-
+Dolomieu_res50cm_cut
 # Output DEM file (.grd)
-
+Dolomieu_res50cm_processed
