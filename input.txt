@@ -1,0 +1,10 @@
+# Repairing? (True|False) Parameters in topo_repair.dat
+False
+# Filtering? (True|False) Parameters in topo_filter.dat
+False
+# Cropping? (True|False) Parameters in topo_crop.dat
+False
+# Input DEM file (.grd)
+
+# Output DEM file (.grd)
+
