@@ -1,7 +1,0 @@
-# new easting (be aware of resolution step size)
- 365944.029000 366674.029000
-# new northing
- 7649805.227000 7650375.227000
-# output grid size Nxout, Nyout - in case interpolation is wished
-739 579
-
