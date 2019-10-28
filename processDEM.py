@@ -5,9 +5,9 @@ This script can be used to repair, filter, and crop 2d DEM files.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from topo_filter import filterDEM
-from topo_repair import repairDEM
-from topo_crop import cropDEM
+from modules.topo_filter import filterDEM
+from modules.topo_repair import repairDEM
+from modules.topo_crop import cropDEM
 
 
 def main():
