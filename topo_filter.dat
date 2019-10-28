@@ -1,0 +1,7 @@
+# Nxout,Nout,filtering wavenumbers k1=1/lambda_max, k2=1/lambda1,
+74 58 0.003 0.005
+# name of output file
+topo_out
+# choose output format: GRD, SEM, SHALTOP
+null
+
