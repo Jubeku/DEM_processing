@@ -26,7 +26,7 @@ This functions allows to low-pass filter the DEM in the wavenumber domain. For t
 
 This means, that topographic variations of wavelengths < 1/*k1* are filtered. Wavelengths < 1/*k2* are completely removed.  
 
-The figure below shows a topography before and after filtering. The acting filter was constructed by *k1=0.003*1/m and *k2=0.005*1/m, corresponding to wavelengths of 333.3m and 200.0m, respectively. 
+The figure below shows a topography before and after filtering. The acting filter was constructed by *k1=0.003*m<sup>-1</sup> and *k2=0.005*m<sup>-1</sup>, corresponding to wavelengths of 333.3m and 200.0m, respectively. 
 
 ![Filtered DEM](images/filteredDEM.png)
 
