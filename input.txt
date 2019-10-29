@@ -1,4 +1,4 @@
-# Filtering: k1=1/lambda_max, k2=1/lambda_corner (if k1=0: no filter)
+# Filtering: k1=1/lambda_max, k2=1/lambda_corner (k1<k2; if k1=0: no filter)
 0 0.005
 # Cropping: easting1, easting2
 365274.029000 367374.029000
@@ -6,9 +6,9 @@
 7649375.227000 7651175.227000
 # Interpolating: dx, dy 
 40 40
-# Repairing? (True|False) 
+# Repairing: repair_bool (True|False) 
 False
-# Input DEM file (.grd)
-DEM_PF_10m
-# Output DEM file (.grd)
-DEM_PF_10m_processed
+# Input DEM file name: fileID (.grd file)
+DEM_PF_10m.grd
+# Output DEM file name: outID (.grd file)
+DEM_PF_10m_processed.grd
