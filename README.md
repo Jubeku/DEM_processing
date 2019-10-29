@@ -1,8 +1,13 @@
 # DEM processing
 
+This routine allows to process Digital Elevation Models (DEMs).
+DEMs can be filtered, cropped, interpolated and repaired.
+
+In the following the input parameters are described and the functions are preseted with an exemplary DEM-file of Piton de la Fournaise volcano, La Réunion.
+
 ### Input parameters
 
-The parameters are defined in the file `input.txt`.
+Input parameters are defined in the file `input.txt`.
 
 | Function      | Variable     | Type (unit) | Description  |
 | ------------- |---------------|-------| ----------|
@@ -13,6 +18,9 @@ The parameters are defined in the file `input.txt`.
 | Repairing     | *repair_bool* |{True, False} | Specify if reparation is wished |
 | Input name    | *fileID*      |string | File name of DEM |
 | Output name   | *outID*       |string | File name to save the processed DEM  |
+
+
+## Example processing
 
 ### Filtering 
 ![Filtered DEM](images/filteredDEM.png)
