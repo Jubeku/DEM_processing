@@ -22,7 +22,7 @@ The following parameters are defined in the file `input.txt`:
 The processing functions are presented in the following using a DEM-file of Piton de la Fournaise volcano, La Réunion. The shown figures are generated when processing a DEM file. 
 
 ### Filtering
-This functions allows to low-pass filter the DEM in the wavenumber domain. For this, wavenumbers *k1* and *k2* are specified, defining the corner wavenumber and the maximum wavenumber of the filter, respectively. The filter is constructed with a ramp of cosine-shape between *k1* and *k2*. 
+This functions allows to low-pass filter the DEM in the wavenumber domain. For this, wavenumbers *k1* and *k2* are specified, defining the corner wavenumber and the maximum wavenumber of the filter, respectively. The filter is constructed with a cosinal transition between *k1* and *k2*. 
 
 This means, that topographic variations of wavelengths < 1/*k1* are filtered. Wavelengths < 1/*k2* are completely removed.  
 
