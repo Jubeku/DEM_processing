@@ -8,7 +8,16 @@ from scipy.interpolate import RectBivariateSpline
 
 def taper( topoC, Nx, Ny, Nbufx, Nbufy ) :
     """
-    This function adds a taper zone on each side of the DEM file.
+    This function adds a taper zone on each side of the topography.
+    The elevation in the buffer zone is weighted to average in a cosine-shape.
+    
+    Input parameters
+    topoC :  DEM object of class Topo
+    Nx    :  Grid dimension in x-direction including buffer
+    Ny    :  Grid dimension in y-direction including buffer
+    Nbufx :  Width of buffer in x-direction 
+    Nbufy :  Width of buffer in y-direction
+    
     """
 
     # Original DEM dimensions and resolution
@@ -69,11 +78,22 @@ def taper( topoC, Nx, Ny, Nbufx, Nbufy ) :
 def filt2d( topo, k1, k2, Nx, Ny, dx, dy, remove_avg) :
 
     """
-    This function is a low-pass on topo in the wavemumber domain. k1 and k2 are
-    the corner filter coefficients with cosinal transition in between.
+    This function low-pass filters the topography in the wavemumber domain. 
+    The filter is constructed with a cosinal transition between k1 and k2.
+    
+    Input parameters
+    topo  :  Array of size (Nx, Ny) of topographic elevation
+    k1    :  Corner wavenumber
+    k2    :  Maximum wavenumber
+    Nx    :  Grid dimension in x-direction
+    Ny    :  Grid dimension in y-direction
+    dx    :  Resolution step size in x-direction 
+    dy    :  Resolution step size in y-direction 
+    remove_avg :  Boolean for substracting the aveage elevation
+    
     """
-    topo_nofilt = topo.copy()
 
+    # Weighting function
     def wtcoef(k, k1, k2) :
         if k1 > k2 :
             print('check filter coefficients: k1 > k2 :(')
@@ -85,10 +105,11 @@ def filt2d( topo, k1, k2, Nx, Ny, dx, dy, remove_avg) :
             wt = 0.5 * (1.0 + np.cos(np.pi*(k-k1)/(k2-k1)) )
         return wt
 
+    # Wavenumber step size
     dkx = 2.*np.pi/np.float(Nx-1)/dx
     dky = 2.*np.pi/np.float(Ny-1)/dy
 
-    topo_plot = np.zeros_like(topo)
+    # Filtering
     for j in range(0,Ny) :
         if (j <= Ny/2+1) :
             ky = j*dky
@@ -102,8 +123,8 @@ def filt2d( topo, k1, k2, Nx, Ny, dx, dy, remove_avg) :
             k = np.sqrt(kx**2+ky**2)/(2.*np.pi)
             wt = wtcoef(k,k1,k2)
             topo[j,i] = topo[j,i]*wt
-            if (wt != 0) : topo_plot[j,i] = np.log10(np.abs(topo[j,i]))
-    
+   
+    # Substract average elevation
     if remove_avg :
          topo[0,0] = 0.
 
@@ -113,11 +134,20 @@ def filt2d( topo, k1, k2, Nx, Ny, dx, dy, remove_avg) :
 def filterDEM( topoC, k1, k2  ) :
 	
     """
-    This function smoothes a DEM file.
-    """
-    
-    remove_avg = False
+    This function filters the a DEM file.
+    A buffer zone is introduced in order to avoid artefacts due to the fitering
+    in the area of interest. 
 
+    Input paramters:
+    topoC :  DEM object of class Topo
+    k1    :  Corner wavenumber
+    k2    :  Maximum wavenumber
+
+    """
+
+    ### INPUT
+    # In case you want to substract the average elevation 
+    remove_avg = False
     # Define buffer width = 0.2 of original length on each side
     Nbufx = int(0.2*topoC.Nx)
     Nbufy = int(0.2*topoC.Ny)
@@ -125,26 +155,24 @@ def filterDEM( topoC, k1, k2  ) :
     Nx    = topoC.Nx + 2*Nbufx
     Ny    = topoC.Ny + 2*Nbufy
 
+
+    ### PROCESSING
     # Add buffer zone
     topo = taper(topoC, Nx, Ny, Nbufx, Nbufy)
-
     # Fourier transform to wavenumber domain
     topo = np.fft.fft2(topo)
-
     # Low-pass filtering with k1 and k2 corner wavenumbers
     topo = filt2d( topo, k1, k2, Nx, Ny, topoC.dx, topoC.dy, remove_avg) 
-
     # Inverse Fourier transform
     topo = np.real(np.fft.ifft2(topo))
-
     # Remove buffer zones
     topo = topo[ Nbufy:(Ny-Nbufy), Nbufx:(Nx-Nbufx) ]
 
 
-    # Plotting
+    ### PLOTTING
     ls = LightSource(azdeg=225, altdeg=45)
     fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
-
+    
     # Plot original DEM
     extent = [ topoC.E0, topoC.E0+topoC.Nx*topoC.dx,
                topoC.N0, topoC.N0+topoC.Ny*topoC.dy ]

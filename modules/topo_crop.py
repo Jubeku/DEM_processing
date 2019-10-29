@@ -7,8 +7,15 @@ from matplotlib.colors import LightSource
 def cropDEM( topoC, E0out, E1out, N0out, N1out ) :
 
     """
-    This function takes a DEM file in fileID (format .grd) and cuts it to a 
-    smaller	region with coordiates specified in parameter file coordID.
+    This function crops a DEM object to new coordinates. 
+    
+    Input paramters:
+    topoC  :  DEM object of class Topo
+    E0out  :  Left easting coordinate
+    E1out  :  Right easting coordinate
+    N0out  :  Bottom northing coordinate
+    N1out  :  Top northing coordinate
+ 
     """
     
     print('\n Cropping ... ')

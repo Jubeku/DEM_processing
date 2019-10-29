@@ -8,8 +8,13 @@ from scipy.interpolate import RectBivariateSpline
 def interpDEM( topoC, dxout, dyout ) :
 
     """
-    This function takes a DEM file in fileID (format .grd) and cuts it to a 
-    smaller	region with coordiates specified in parameter file coordID.
+    This function allows down- or up-sample a DEM file.
+
+    Input parameters
+    topoC  :  DEM object of class Topo
+    dxout  :  Nre resolution step size in x-direction (East)
+    dyout  :  New resolution step size in y-direction (North)
+    
     """
    
     print('\n Interpolating ... ')

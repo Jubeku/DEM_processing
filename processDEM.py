@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 """
-This script can be used to repair, filter, and crop 2d DEM files. 
+This script allows to repair, filter, and crop 2d DEM files. 
+Input parameters have to be specified in a file named 'input.txt'.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 from modules.classTopo import Topo
 from modules.m_PLOTS import plotDEM
 
-
 def main():
-   
 
     ### INPUT
     # Read input parameter 
@@ -25,7 +23,7 @@ def main():
         outID        = lines[13].replace('\n', '')
     
     # Read DEM file
-    with open(fileID+'.grd') as f:
+    with open(fileID) as f:
         lines     = f.readlines()
         Nx, Ny    = map(np.int,lines[1].split())
         E0, E1    = map(np.float,lines[2].split())
@@ -73,7 +71,7 @@ def main():
 
     
     ### WRITING
-    with open(outID+'.grd', 'w') as f:
+    with open(outID, 'w') as f:
         f.write('DSAA\n')
         f.write(' '+str(topoC.Nx)+' '+str(topoC.Ny)+'\n')
         f.write(' '+str(E0out)+' '+str(E1out)+'\n')

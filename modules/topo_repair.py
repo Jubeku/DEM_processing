@@ -5,7 +5,18 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
 
 def repairX( topoC, n_iter, threshold):
-    
+   
+    """
+    This function is called by repairDEM and removes artefacts from a DEM 
+    in an recursive manner. 
+
+    Input paramters:
+    topoC     :  DEM object of class Topo
+    n_iter    :  Maximum number of iterations
+    threshold :  Gradient threshold above which the elevation is corrected 
+    """
+
+
     # Calculate gradient of DEM
     topo_gradient = np.gradient(topoC.topo,topoC.dx,topoC.dy)
     topo_gx = topo_gradient[1]
@@ -53,7 +64,11 @@ def repairX( topoC, n_iter, threshold):
 def repairDEM( topoC ) :
 	
     """
-    This function smoothes a DEM file.
+    This function removes artefacts from a DEM by finding gradients of 
+    the elevation above a certain threshold.
+    
+    Input paramters:
+    topoC     :  DEM object of class Topo
     """
 
     print('\n Repairing ... ')
