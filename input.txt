@@ -1,14 +1,14 @@
-# Repairing? (True|False) 
-False
-# Filtering: k1=1/lambda_max, k2=1/lambda (if k1=0: no filter)
+# Filtering: k1=1/lambda_max, k2=1/lambda_corner (if k1=0: no filter)
 0 0.005
 # Cropping: easting1, easting2
-365944.029000 366674.029000 
+365274.029000 367374.029000
 # Cropping: northing1, northing2
-7649805.227000 7650375.227000
+7649375.227000 7651175.227000
 # Interpolating: dx, dy 
-2 2
+40 40
+# Repairing? (True|False) 
+False
 # Input DEM file (.grd)
-Dolomieu_res50cm_cut
+DEM_PF_10m
 # Output DEM file (.grd)
-Dolomieu_res50cm_processed
+DEM_PF_10m_processed

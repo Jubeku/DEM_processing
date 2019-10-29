@@ -6,36 +6,42 @@ from matplotlib.colors import LightSource
 from scipy.interpolate import RectBivariateSpline
 
 
-def taper( Nx, Ny, Nbufx, Nbufy, dx, dy, topo, topo_buf ) :
+def taper( topoC, Nx, Ny, Nbufx, Nbufy ) :
     """
     This function adds a taper zone on each side of the DEM file.
     """
 
-    Nx0 = Nx - 2*Nbufx
-    Ny0 = Ny - 2*Nbufy
+    # Original DEM dimensions and resolution
+    Nx0   = topoC.Nx
+    Ny0   = topoC.Ny
+    dx    = topoC.dx
+    dy    = topoC.dy
+    # Total width and buffer width 
+    Lx    = (Nx-1)*dx
+    Ly    = (Ny-1)*dy
     Lbufx = Nbufx*dx
     Lbufy = Nbufy*dy
-    Lx = (Nx-1)*dx
-    Ly = (Ny-1)*dy
+    
+    # DEM with buffer
+    topo_buf = np.zeros((Ny,Nx))
+    topo_buf[ Nbufy:(Ny-Nbufy), Nbufx:(Nx-Nbufx) ] = topoC.topo
 
-    avg = np.sum(topo)/(Nx0*Ny0)
-    topo_buf[ Nbufy:(Ny-Nbufy), Nbufx:(Nx-Nbufx) ] = topo
-
+    # Fill buffer with border of DEM
     # edges in x-direction
-    for i in xrange(Nbufx,(Nx-Nbufx)) :
-        topo_buf[ 0:Nbufy    , i ] = topo[ 0    , i-Nbufx ]
-        topo_buf[ Ny-Nbufy:Ny, i ] = topo[ Ny0-1, i-Nbufx ]
+    for i in range(Nbufx,(Nx-Nbufx)) :
+        topo_buf[ 0:Nbufy    , i ] = topoC.topo[ 0    , i-Nbufx ]
+        topo_buf[ Ny-Nbufy:Ny, i ] = topoC.topo[ Ny0-1, i-Nbufx ]
     # edges in y-direction
-    for j in xrange(Nbufy,(Ny-Nbufy)) :
-        topo_buf[ j, 0:Nbufx     ] = topo[ j-Nbufy, 0     ]
-        topo_buf[ j, Nx-Nbufx:Nx ] = topo[ j-Nbufy, Nx0-1 ]
+    for j in range(Nbufy,(Ny-Nbufy)) :
+        topo_buf[ j, 0:Nbufx     ] = topoC.topo[ j-Nbufy, 0     ]
+        topo_buf[ j, Nx-Nbufx:Nx ] = topoC.topo[ j-Nbufy, Nx0-1 ]
     # corners
-    topo_buf[ 0:Nbufy    , 0:Nbufx     ] = topo[ 0    , 0     ]
-    topo_buf[ Ny-Nbufy:Ny, 0:Nbufx     ] = topo[ Ny0-1, 0     ]
-    topo_buf[ Ny-Nbufy:Ny, Nx-Nbufx:Nx ] = topo[ Ny0-1, Nx0-1 ]
-    topo_buf[ 0:Nbufy    , Nx-Nbufx:Nx ] = topo[ 0    , Nx0-1 ]
+    topo_buf[ 0:Nbufy    , 0:Nbufx     ] = topoC.topo[ 0    , 0     ]
+    topo_buf[ Ny-Nbufy:Ny, 0:Nbufx     ] = topoC.topo[ Ny0-1, 0     ]
+    topo_buf[ Ny-Nbufy:Ny, Nx-Nbufx:Nx ] = topoC.topo[ Ny0-1, Nx0-1 ]
+    topo_buf[ 0:Nbufy    , Nx-Nbufx:Nx ] = topoC.topo[ 0    , Nx0-1 ]
 
-
+    # Cosine weighting function
     def wtcoef(p, p0, p1, p2, p3) :
         if p1 <= p <= p2 :
             wt = 1.0
@@ -47,19 +53,20 @@ def taper( Nx, Ny, Nbufx, Nbufy, dx, dy, topo, topo_buf ) :
             print('Please check buffer coordinates!')
         return wt
 
-    # weighting towards average in cosine shape
-    for j in xrange(0,Ny) :
+    # Weighting towards average in outward direction
+    avg = np.sum(topoC.topo)/(Nx0*Ny0)
+    for j in range(0,Ny) :
         y = j*dy
         wy = wtcoef(y,0.0,Lbufy,Ly-Lbufy,Ly)
-        for i in xrange(0,Nx) :
+        for i in range(0,Nx) :
             x = i*dx
             wx = wtcoef(x,0.0,Lbufx,Lx-Lbufx,Lx)
             topo_buf[j,i] = topo_buf[j,i]*wx*wy + avg*(1.-wx*wy)
 
-    return topo_buf
+    return(topo_buf)
 
 
-def filt2d( Nx, Ny, dx, dy, topo, k1, k2, remove_avg) :
+def filt2d( topo, k1, k2, Nx, Ny, dx, dy, remove_avg) :
 
     """
     This function is a low-pass on topo in the wavemumber domain. k1 and k2 are
@@ -80,16 +87,14 @@ def filt2d( Nx, Ny, dx, dy, topo, k1, k2, remove_avg) :
 
     dkx = 2.*np.pi/np.float(Nx-1)/dx
     dky = 2.*np.pi/np.float(Ny-1)/dy
-    print('dkx: ', dkx, ', dky: ', dky)
-    print('kxmax: ', dkx*(Nx/2+1), ', kymax: ', dky*(Ny/2+1), '\n')
 
     topo_plot = np.zeros_like(topo)
-    for j in xrange(0,Ny) :
+    for j in range(0,Ny) :
         if (j <= Ny/2+1) :
             ky = j*dky
         else :
             ky = -(Ny-j)*dky
-        for i in xrange(0,Nx) :
+        for i in range(0,Nx) :
             if (i <= Nx/2+1) :
                 kx = i*dkx
             else :
@@ -98,34 +103,8 @@ def filt2d( Nx, Ny, dx, dy, topo, k1, k2, remove_avg) :
             wt = wtcoef(k,k1,k2)
             topo[j,i] = topo[j,i]*wt
             if (wt != 0) : topo_plot[j,i] = np.log10(np.abs(topo[j,i]))
-
-    #plotting:
-    kxi_log = np.logspace(np.log10(dkx),np.log10(dkx*(Nx/2+1)),Nx/2)
-    kyi_log = np.logspace(np.log10(dky),np.log10(dky*(Ny/2+1)),Ny/2)
-    X, Y = np.meshgrid(kxi_log,kyi_log)
-
-    f, (ax1, ax2) = plt.subplots(1, 2)
-    ax1.pcolor(X,Y,np.log10(np.abs(topo_nofilt[1:Ny/2+1,1:Nx/2+1])))#, vmin=tmin, vmax=tmax)
-    ax1.set_xscale('log')
-    ax1.set_yscale('log')
-    ax1.set_xlim([kxi_log.min(), kxi_log.max()])
-    ax1.set_ylim([kyi_log.min(), kyi_log.max()])
-    ax1.grid(True)
-    ax2.pcolor(X,Y,topo_plot[1:Ny/2+1,1:Nx/2+1])#, vmin=tmin, vmax=tmax)
-    ax2.set_xscale('log')
-    ax2.set_yscale('log')
-    ax2.set_xlim([kxi_log.min(), kxi_log.max()])
-    ax2.set_ylim([kyi_log.min(), kyi_log.max()])
-    ax2.grid(True)
-    ax1.set_title('original topography')
-    ax2.set_title('low pass: k1=0.003, k2=0.005')
-    ax1.set_ylabel('ky (1/m)')
-    ax1.set_xlabel('kx (1/m)')
-    ax2.set_xlabel('kx (1/m)')
-    plt.show()
-
+    
     if remove_avg :
-         print(topo[0,0])
          topo[0,0] = 0.
 
     return topo
@@ -136,43 +115,53 @@ def filterDEM( topoC, k1, k2  ) :
     """
     This function smoothes a DEM file.
     """
-
-    # read filter parameters
-    with open('topo_filter.dat') as f:
-        lines             = f.readlines()
-        Nxout,Nyout,k1,k2 = map(np.float,lines[1].split())
-        outID             = lines[3].replace('\n', '')
-        outFormat         = lines[5].replace('\n', '')
-    Nxout = np.int(Nxout)
-    Nyout = np.int(Nyout)
-
-    new_grid = True	
-    if (Nxout==Nx and Nyout==Ny) : new_grid = False
+    
+    remove_avg = False
 
     # Define buffer width = 0.2 of original length on each side
-    Nbufx = int(0.2*Nx)
-    Nbufy = int(0.2*Ny)
-    Lbufx = Nbufx*dx
-    Lbufy = Nbufy*dy
-    Nx = Nx + 2*Nbufx
-    Ny = Ny + 2*Nbufy
-    Lx = (Nx-1)*dx
-    Ly = (Ny-1)*dy
+    Nbufx = int(0.2*topoC.Nx)
+    Nbufy = int(0.2*topoC.Ny)
+    # Dimensions of DEM with buffer
+    Nx    = topoC.Nx + 2*Nbufx
+    Ny    = topoC.Ny + 2*Nbufy
 
     # Add buffer zone
-    topo_buf = np.zeros((Ny,Nx))
-    topo_buf = taper(Nx,Ny,Nbufx,Nbufy,dx,dy,topo,topo_buf)
+    topo = taper(topoC, Nx, Ny, Nbufx, Nbufy)
 
     # Fourier transform to wavenumber domain
-    topo_fft = np.fft.fft2(topo_buf)
+    topo = np.fft.fft2(topo)
 
     # Low-pass filtering with k1 and k2 corner wavenumbers
-    topo_fft = filt2d( Nx, Ny, dx, dy, topo_fft, k1, k2, remove_avg) 
+    topo = filt2d( topo, k1, k2, Nx, Ny, topoC.dx, topoC.dy, remove_avg) 
 
     # Inverse Fourier transform
-    topo_filt = np.real(np.fft.ifft2(topo_fft))
+    topo = np.real(np.fft.ifft2(topo))
 
     # Remove buffer zones
-    topo_out = topo_filt[ Nbufy:(Ny-Nbufy), Nbufx:(Nx-Nbufx) ]
+    topo = topo[ Nbufy:(Ny-Nbufy), Nbufx:(Nx-Nbufx) ]
 
-    return(topo, Nxout, Nyout, dxout, dyout)
+
+    # Plotting
+    ls = LightSource(azdeg=225, altdeg=45)
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
+
+    # Plot original DEM
+    extent = [ topoC.E0, topoC.E0+topoC.Nx*topoC.dx,
+               topoC.N0, topoC.N0+topoC.Ny*topoC.dy ]
+    ax1.set_title('Original DEM')
+    ax1.imshow(ls.hillshade(topoC.topo,vert_exag=1,dx=topoC.dx,dy=topoC.dy),
+               extent=extent, cmap='gray', origin='lower')
+    ax1.set(xlabel='Easting (m)', ylabel='Northing (m)')
+
+    # Save new properties to DEM object 
+    topoC.topo = topo
+
+    # Plot cropped DEM
+    ax2.set_title('Filtered DEM: '+\
+            'k1='+str(k1)+'m$^{-1}$, k2='+str(k2)+'m$^{-1}$')
+    ax2.imshow(ls.hillshade(topoC.topo,vert_exag=1,dx=topoC.dx,dy=topoC.dy),
+               extent=extent, cmap='gray', origin='lower')
+    ax2.set(xlabel='Easting (m)')
+    plt.show()
+
+    return()

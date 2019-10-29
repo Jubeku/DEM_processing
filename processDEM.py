@@ -16,11 +16,11 @@ def main():
     # Read input parameter 
     with open('input.txt') as f:
         lines        = f.readlines()
-        repair_bool  = lines[1].replace('\n', '')
-        k1, k2i      = map(np.float,lines[3].split())
-        E0out, E1out = map(np.float,lines[5].split())
-        N0out, N1out = map(np.float,lines[7].split())
-        dxout, dyout = map(np.float,lines[9].split())
+        k1, k2       = map(np.float,lines[1].split())
+        E0out, E1out = map(np.float,lines[3].split())
+        N0out, N1out = map(np.float,lines[5].split())
+        dxout, dyout = map(np.float,lines[7].split())
+        repair_bool  = lines[ 9].replace('\n', '')
         fileID       = lines[11].replace('\n', '')
         outID        = lines[13].replace('\n', '')
     
@@ -38,6 +38,7 @@ def main():
     dy = (N1-N0)/(Ny-1)
     xi = np.arange(0, dx*Nx+dx, dx)
     yi = np.arange(0, dy*Ny+dy, dy)
+    print('\n Grid dimension and resolution.')
     print('Nx: ', Nx, ', Ny: ', Ny)
     print('dx: ', dx, ', dy: ', dy)
 
@@ -45,29 +46,32 @@ def main():
     topo = np.flipud(topo)
     topoC = Topo(topo, E0, N0, dx, dy, Nx, Ny)
 
+    
     ### PROCESSING
-    # Repairing
-    if repair_bool == 'True':
-        topoC.repair()
     # Filtering
     if k1 == 0.:
-        print('No filtering')
+        print('\n No filtering.')
     else:
         topoC.filter( k1, k2 )
     # Cropping
     if ( E0out == E0 and E1out == E1 and N0out == N0 and N1out == N1 ): 
-        print('No cropping')
+        print('\n No cropping.')
     else:
         topoC.crop( E0out, E1out, N0out, N1out )
     # Interpolating
     if ( dxout == dx and dyout == dy ): 
-        print('No interpolation')
+        print('\n No interpolation.')
     else:
         topoC.interpolate( dxout, dyout )
-
+    # Repairing
+    if repair_bool == 'True':
+        topoC.repair()
+    
+    
     ### PLOTTING
-    topoC.plot()
+    topoC.plot( 'Processed DEM' )
 
+    
     ### WRITING
     with open(outID+'.grd', 'w') as f:
         f.write('DSAA\n')

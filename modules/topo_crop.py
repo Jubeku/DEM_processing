@@ -3,8 +3,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.interpolate import RectBivariateSpline
 
 def cropDEM( topoC, E0out, E1out, N0out, N1out ) :
 
@@ -12,6 +10,8 @@ def cropDEM( topoC, E0out, E1out, N0out, N1out ) :
     This function takes a DEM file in fileID (format .grd) and cuts it to a 
     smaller	region with coordiates specified in parameter file coordID.
     """
+    
+    print('\n Cropping ... ')
 
     # Determine indeces which correspond to new coordinates, be aware 
     # of the grd format convention: ordered from left to right (Easting) 
@@ -36,7 +36,7 @@ def cropDEM( topoC, E0out, E1out, N0out, N1out ) :
     # Plot original DEM
     extent = [ topoC.E0, topoC.E0+topoC.Nx*topoC.dx,
                topoC.N0, topoC.N0+topoC.Ny*topoC.dy ]
-    ax1.set_title('Original')
+    ax1.set_title('Original DEM')
     ax1.imshow(ls.hillshade(topoC.topo,vert_exag=1,dx=topoC.dx,dy=topoC.dy), 
                extent=extent, cmap='gray', origin='lower')
     ax1.plot([E0out, E1out], [N0out, N0out], 'k-', lw=2)	
@@ -55,7 +55,7 @@ def cropDEM( topoC, E0out, E1out, N0out, N1out ) :
     # Plot cropped DEM
     extent = [ topoC.E0, topoC.E0+topoC.Nx*topoC.dx,
                topoC.N0, topoC.N0+topoC.Ny*topoC.dy ]
-    ax2.set_title('Cropped')
+    ax2.set_title('Cropped DEM')
     ax2.imshow(ls.hillshade(topoC.topo,vert_exag=1,dx=topoC.dx,dy=topoC.dy), 
                extent=extent, cmap='gray', origin='lower')
     ax2.set(xlabel='Easting (m)') 

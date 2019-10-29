@@ -28,5 +28,5 @@ class Topo:
     def interpolate( self, dxout, dyout ):
         interpDEM(self, dxout, dyout )
 
-    def plot(self):
-        plotDEM(self)
+    def plot(self, title):
+        plotDEM(self, title)
